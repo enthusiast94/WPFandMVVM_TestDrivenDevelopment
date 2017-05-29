@@ -9,7 +9,7 @@ namespace FriendStorage.DataAccess
 {
   public class FileDataService : IDataService
   {
-    private const string StorageFile = "Friends.json";
+    private const string STORAGE_FILE = "Friends.json";
 
     public Friend GetFriendById(int friendId)
     {
@@ -56,26 +56,25 @@ namespace FriendStorage.DataAccess
       SaveToFile(friends);
     }
 
-    public IEnumerable<Friend> GetAllFriends()
+    public IEnumerable<LookupItem> GetAllFriends()
     {
-      return ReadFromFile();
+      return ReadFromFile().Select(friend => new LookupItem() {
+          Id = friend.Id,
+          DisplayMember = $"{friend.FirstName} {friend.LastName}"
+      });
     }
 
-    public void Dispose()
-    {
-      // Usually Service-Proxies are disposable. This method is added as demo-purpose
-      // to show how to use an IDisposable in the client with a Func<T>. =>  Look for example at the FriendDataProvider-class
-    }
+    
 
     private void SaveToFile(List<Friend> friendList)
     {
       string json = JsonConvert.SerializeObject(friendList, Formatting.Indented);
-      File.WriteAllText(StorageFile, json);
+      File.WriteAllText(STORAGE_FILE, json);
     }
 
     private List<Friend> ReadFromFile()
     {
-      if (!File.Exists(StorageFile))
+      if (!File.Exists(STORAGE_FILE))
       {
         return new List<Friend>
                 {
@@ -98,8 +97,13 @@ namespace FriendStorage.DataAccess
                 };
       }
 
-      string json = File.ReadAllText(StorageFile);
+      string json = File.ReadAllText(STORAGE_FILE);
       return JsonConvert.DeserializeObject<List<Friend>>(json);
     }
-  }
+
+      public void Dispose() {
+          // Usually Service-Proxies are disposable. This method is added as demo-purpose
+          // to show how to use an IDisposable in the client with a Func<T>. =>  Look for example at the FriendDataProvider-class
+      }
+    }
 }

@@ -11,9 +11,7 @@
         <DataTemplate>
           <Button Command="{Binding OpenFriendEditViewCommand}"
                   Style="{StaticResource NavigationButtonStyle}">
-            <TextBlock>
-              <Run Text="{Binding FirstName}"/> <Run Text="{Binding LastName}"/>
-            </TextBlock>
+            <TextBlock Text="{Binding DisplayMember}"/>
           </Button>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
