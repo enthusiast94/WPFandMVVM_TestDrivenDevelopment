@@ -7,6 +7,7 @@ using FriendStorage.UI.ViewModel;
 using Moq;
 using Prism.Events;
 using Xunit;
+using FriendStorage.UI.Events;
 
 namespace FriendStorageUITests.ViewModel {
 
@@ -22,6 +23,8 @@ namespace FriendStorageUITests.ViewModel {
                     new LookupItem() {Id = 2, DisplayMember = "Gautam Bajaj"},
                 });
             Mock<IEventAggregator> eventAggregatorMock = new Mock<IEventAggregator>();
+            eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>())
+                .Returns(new OnDeleteFriendEvent());
 
             navigationViewModel = new NavigationViewModel(navigationDataProviderMock.Object, eventAggregatorMock.Object);
         }

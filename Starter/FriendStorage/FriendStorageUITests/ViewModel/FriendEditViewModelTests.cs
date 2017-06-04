@@ -3,6 +3,7 @@ using FriendStorage.UI.DataProvider;
 using FriendStorage.UI.ViewModel;
 using FriendStorageUITests.Util;
 using Moq;
+using Prism.Events;
 using Xunit;
 
 namespace FriendStorageUITests.ViewModel {
@@ -10,13 +11,15 @@ namespace FriendStorageUITests.ViewModel {
         private readonly int friendId = 5;
         private Mock<IFriendDataProvider> friendDataProviderMock;
         private FriendEditViewModel viewModel;
+        private Mock<IEventAggregator> eventAggregatorMock;
 
         public FriendEditViewModelTests() {
             friendDataProviderMock = new Mock<IFriendDataProvider>();
             friendDataProviderMock.Setup(provider => provider.GetFriendById(friendId))
                 .Returns(new Friend() {Id = friendId, FirstName = "Manas"});
+            eventAggregatorMock = new Mock<IEventAggregator>();
 
-            viewModel = new FriendEditViewModel(friendDataProviderMock.Object);
+            viewModel = new FriendEditViewModel(friendDataProviderMock.Object, eventAggregatorMock.Object);
         }
 
         [Fact]

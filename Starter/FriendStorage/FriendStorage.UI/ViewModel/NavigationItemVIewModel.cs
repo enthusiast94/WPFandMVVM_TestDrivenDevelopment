@@ -10,7 +10,7 @@ using Prism.Events;
 
 namespace FriendStorage.UI.ViewModel {
 
-    public class NavigationItemVIewModel {
+    public class NavigationItemViewModel {
 
         public int Id { get; private set; }
         public string DisplayMember { get; private set; }
@@ -18,7 +18,7 @@ namespace FriendStorage.UI.ViewModel {
 
         private IEventAggregator eventAggregator;
 
-        public NavigationItemVIewModel(int id, string displayMember, IEventAggregator eventAggregator) {
+        public NavigationItemViewModel(int id, string displayMember, IEventAggregator eventAggregator) {
             Id = id;
             DisplayMember = displayMember;
             OpenFriendEditViewCommand = new DelegateCommand(OnFriendEditViewExecute);

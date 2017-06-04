@@ -16,7 +16,7 @@ namespace FriendStorageUITests.ViewModel {
             eventAggregatorMock
                 .Setup(aggregator => aggregator.GetEvent<OpenFriendEditViewEvent>())
                 .Returns(eventMock.Object);
-            NavigationItemVIewModel viewModel = new NavigationItemVIewModel(friendId, "Manas Bajaj", eventAggregatorMock.Object);
+            NavigationItemViewModel viewModel = new NavigationItemViewModel(friendId, "Manas Bajaj", eventAggregatorMock.Object);
 
             viewModel.OpenFriendEditViewCommand.Execute(null);
 
