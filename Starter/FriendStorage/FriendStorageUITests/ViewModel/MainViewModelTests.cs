@@ -9,6 +9,7 @@ using System.Linq;
 using FriendStorage.Model;
 using FriendStorage.UI.View;
 using FriendStorageUITests.Util;
+using FriendStorage.UI.Wrappers;
 
 namespace FriendStorageUITests.ViewModel {
     public class MainViewModelTests {
@@ -105,7 +106,7 @@ namespace FriendStorageUITests.ViewModel {
             mock.Setup(model => model.Load(It.IsAny<int>()))
                 .Callback<int>(friendId => {
                     mock.Setup(model => model.Friend)
-                        .Returns(new Friend() {Id = friendId});
+                        .Returns(new FriendWrapper(new Friend() { Id = friendId }));
                 });
             friendEditViewModelMocks.Add(mock);
             return mock.Object;

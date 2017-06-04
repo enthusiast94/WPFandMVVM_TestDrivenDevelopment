@@ -24,6 +24,12 @@ namespace FriendStorage.UI.ViewModel {
             this.eventAggregator = eventAggregator;
 
             eventAggregator.GetEvent<OnDeleteFriendEvent>().Subscribe(OnDeleteFriend);
+            eventAggregator.GetEvent<OnFriendSavedEvent>().Subscribe(OnSavedFriend);
+        }
+
+        private void OnSavedFriend(Friend savedFriend) {
+            Friends.SingleOrDefault(model => model.Id == savedFriend.Id).DisplayMember =
+                $"{savedFriend.FirstName} {savedFriend.LastName}";
         }
 
         private void OnDeleteFriend(int friendId) {

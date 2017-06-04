@@ -5,44 +5,66 @@ using System.Windows.Input;
 using FriendStorage.UI.Command;
 using Prism.Events;
 using FriendStorage.UI.Events;
+using FriendStorage.UI.Wrappers;
 
 namespace FriendStorage.UI.ViewModel {
     public interface IFriendEditViewModel {
         void Load(int friendId);
-        Friend Friend { get; }
-        ICommand DeleteCommand { get; }
+        FriendWrapper Friend { get; }
     }
 
     public class FriendEditViewModel : ViewModelBase, IFriendEditViewModel {
         private readonly IFriendDataProvider friendDataProvider;
-        private Friend friend;
+        private FriendWrapper friend;
         private IEventAggregator eventAggregator;
 
-        public Friend Friend {
+        public FriendWrapper Friend {
             get { return friend; }
             private set {
                 if (friend != value) {
                     friend = value;
-                    OnPropertyChanged("Friend");
+                    OnPropertyChanged();
                 }
             }
         }
         public ICommand DeleteCommand { get; private set; }
+        public ICommand SaveCommand { get; private set; }
 
         public FriendEditViewModel(IFriendDataProvider friendDataProvider, IEventAggregator eventAggregator) {
             this.friendDataProvider = friendDataProvider;
             this.eventAggregator = eventAggregator;
 
             DeleteCommand = new DelegateCommand(OnDeleteButtonClicked);
+            SaveCommand = new DelegateCommand(OnSaveButtonClicked, CanSave);
         }
-        
+
         public void Load(int friendId) {
-            Friend = friendDataProvider.GetFriendById(friendId);
+            Friend = new FriendWrapper(friendDataProvider.GetFriendById(friendId));
+            Friend.PropertyChanged += Friend_PropertyChanged;
+        }
+
+        private void Friend_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
+            RefreshSaveButtonState();
         }
 
         private void OnDeleteButtonClicked(object obj) {
-            friendDataProvider.DeleteFriend(Friend.Id);
-            eventAggregator.GetEvent<OnDeleteFriendEvent>().Publish(Friend.Id);
+            friendDataProvider.DeleteFriend(friend.Id);
+            eventAggregator.GetEvent<OnDeleteFriendEvent>().Publish(friend.Id);
+        }
+
+        private void OnSaveButtonClicked(object obj) {
+            friendDataProvider.SaveFriend(friend.Model);
+            friend.IsChanged = false;
+            eventAggregator.GetEvent<OnFriendSavedEvent>().Publish(friend.Model);
+            RefreshSaveButtonState();
+        }
+
+        private bool CanSave(object arg) {
+            return friend.IsChanged;
+        }
+
+        private void RefreshSaveButtonState() {
+            ((DelegateCommand) SaveCommand).RaiseCanExecuteChanged();
         }
     }
 }

@@ -10,13 +10,24 @@ using Prism.Events;
 
 namespace FriendStorage.UI.ViewModel {
 
-    public class NavigationItemViewModel {
+    public class NavigationItemViewModel : ViewModelBase {
 
         public int Id { get; private set; }
-        public string DisplayMember { get; private set; }
+
+        public string DisplayMember {
+            get { return displayMember; }
+            set {
+                if (displayMember != value) {
+                    displayMember = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public ICommand OpenFriendEditViewCommand { get; private set; }
 
         private IEventAggregator eventAggregator;
+        private string displayMember;
 
         public NavigationItemViewModel(int id, string displayMember, IEventAggregator eventAggregator) {
             Id = id;

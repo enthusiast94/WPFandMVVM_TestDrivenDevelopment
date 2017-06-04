@@ -15,14 +15,18 @@ namespace FriendStorageUITests.ViewModel {
         private FriendEditViewModel viewModel;
         private Mock<IEventAggregator> eventAggregatorMock;
         private OnDeleteFriendEvent onDeleteFriendEvent;
+        private Mock<OnFriendSavedEvent> onFriendSavedEventMock;
 
         public FriendEditViewModelTests() {
             friendDataProviderMock = new Mock<IFriendDataProvider>();
+            onFriendSavedEventMock = new Mock<OnFriendSavedEvent>();
             friendDataProviderMock.Setup(provider => provider.GetFriendById(friendId))
                 .Returns(new Friend() {Id = friendId, FirstName = "Manas"});
             eventAggregatorMock = new Mock<IEventAggregator>();
             eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>())
                 .Returns(new OnDeleteFriendEvent());
+            eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnFriendSavedEvent>())
+                .Returns(onFriendSavedEventMock.Object);
 
             viewModel = new FriendEditViewModel(friendDataProviderMock.Object, eventAggregatorMock.Object);
         }
@@ -38,9 +42,7 @@ namespace FriendStorageUITests.ViewModel {
 
         [Fact]
         public void ShouldRaisePropertyChangedEventForFriend() {
-            bool fired = viewModel.IsPorpertChangedFired(nameof(viewModel.Friend), () => {
-                viewModel.Load(friendId);    
-            });
+            bool fired = viewModel.IsPorpertChangedFired(nameof(viewModel.Friend), () => { viewModel.Load(friendId); });
 
             Assert.True(fired);
         }
@@ -49,8 +51,44 @@ namespace FriendStorageUITests.ViewModel {
         public void ShouldDeleteFriendAndFireDeleteEventWhenDeleteButtonClicked() {
             viewModel.Load(friendId);
             viewModel.DeleteCommand.Execute(null);
+
             friendDataProviderMock.Verify(provider => provider.DeleteFriend(friendId), Times.Once);
             eventAggregatorMock.Verify(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>(), Times.Once);
+        }
+
+        [Fact]
+        public void ShouldDisableSaveButtonOnLoad() {
+            viewModel.Load(friendId);
+
+            Assert.False(viewModel.SaveCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void ShouldEnableSaveButtonOnChange() {
+            viewModel.Load(friendId);
+            viewModel.Friend.FirstName = "Changed";
+
+            Assert.True(viewModel.SaveCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void ShouldRaiseCanExecueChangedEventForSaveCommandOnChange() {
+            viewModel.Load(friendId);
+            bool fired = false;
+            viewModel.SaveCommand.CanExecuteChanged += (sender, args) => fired = true;
+            viewModel.Friend.FirstName = "Changed";
+
+            Assert.True(fired);
+        }
+
+        [Fact]
+        public void ShouldSaveFriendUsingDataProviderAndPublishSavedEventOnSaveButtonClick() {
+            viewModel.Load(friendId);
+            viewModel.Friend.FirstName = "Changed";
+            viewModel.SaveCommand.Execute(null);
+
+            friendDataProviderMock.Verify(provider => provider.SaveFriend(viewModel.Friend.Model), Times.Once);
+            onFriendSavedEventMock.Verify(onSavedEvent => onSavedEvent.Publish(viewModel.Friend.Model), Times.Once);
         }
     }
 }

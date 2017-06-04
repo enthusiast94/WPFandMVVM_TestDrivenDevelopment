@@ -10,11 +10,11 @@ using Xunit;
 using FriendStorage.UI.Events;
 
 namespace FriendStorageUITests.ViewModel {
-
     public class NavigationViewModelTests {
-
-        private NavigationViewModel navigationViewModel;
+        private NavigationViewModel viewModel;
         private OnDeleteFriendEvent onDeleteFriendEvent;
+        private Mock<IEventAggregator> eventAggregatorMock;
+        private OnFriendSavedEvent onFriendSavedEvent;
 
         public NavigationViewModelTests() {
             Mock<INavigationDataProvider> navigationDataProviderMock = new Mock<INavigationDataProvider>();
@@ -23,44 +23,55 @@ namespace FriendStorageUITests.ViewModel {
                     new LookupItem() {Id = 1, DisplayMember = "Manas Bajaj"},
                     new LookupItem() {Id = 2, DisplayMember = "Gautam Bajaj"},
                 });
-            Mock<IEventAggregator> eventAggregatorMock = new Mock<IEventAggregator>();
+            eventAggregatorMock = new Mock<IEventAggregator>();
             eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>())
                 .Returns(new OnDeleteFriendEvent());
             onDeleteFriendEvent = eventAggregatorMock.Object.GetEvent<OnDeleteFriendEvent>();
+            eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnFriendSavedEvent>())
+                .Returns(new OnFriendSavedEvent());
+            onFriendSavedEvent = eventAggregatorMock.Object.GetEvent<OnFriendSavedEvent>();
 
-            navigationViewModel = new NavigationViewModel(navigationDataProviderMock.Object, eventAggregatorMock.Object);
+            viewModel = new NavigationViewModel(navigationDataProviderMock.Object, eventAggregatorMock.Object);
         }
 
         [Fact]
         public void ShouldLoadFriends() {
-            navigationViewModel.Load();
+            viewModel.Load();
 
-            Assert.Equal(2, navigationViewModel.Friends.Count);
+            Assert.Equal(2, viewModel.Friends.Count);
 
-            var friend = navigationViewModel.Friends.SingleOrDefault(friend1 => friend1.Id == 1);
+            var friend = viewModel.Friends.SingleOrDefault(friend1 => friend1.Id == 1);
             Assert.NotNull(friend);
             Assert.Equal("Manas Bajaj", friend.DisplayMember);
 
-            friend = navigationViewModel.Friends.SingleOrDefault(friend1 => friend1.Id == 2);
+            friend = viewModel.Friends.SingleOrDefault(friend1 => friend1.Id == 2);
             Assert.NotNull(friend);
             Assert.Equal("Gautam Bajaj", friend.DisplayMember);
         }
 
         [Fact]
         public void ShouldLoadFriendsOnlyOnce() {
-            navigationViewModel.Load();
-            navigationViewModel.Load();
+            viewModel.Load();
+            viewModel.Load();
 
-            Assert.Equal(2, navigationViewModel.Friends.Count);
+            Assert.Equal(2, viewModel.Friends.Count);
         }
 
         [Fact]
         public void ShouldRemoveFriendOnReceivingDeleteEvent() {
-            navigationViewModel.Load();
+            viewModel.Load();
             onDeleteFriendEvent.Publish(1);
 
-            Assert.Equal(1, navigationViewModel.Friends.Count);
-            Assert.Equal(2, navigationViewModel.Friends.First().Id);
+            Assert.Equal(1, viewModel.Friends.Count);
+            Assert.Equal(2, viewModel.Friends.First().Id);
+        }
+
+        [Fact]
+        public void ShouldUpdateFriendsOnReceivingFriendSavedEvent() {
+            viewModel.Load();
+            onFriendSavedEvent.Publish(new Friend() {Id = 1, FirstName = "ManasChanged", LastName = "Bajaj"});
+
+            Assert.Equal("ManasChanged Bajaj", viewModel.Friends.SingleOrDefault(model => model.Id == 1).DisplayMember);
         }
     }
 }
