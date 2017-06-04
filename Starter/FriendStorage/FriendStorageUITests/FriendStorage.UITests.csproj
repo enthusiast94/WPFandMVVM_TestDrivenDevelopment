@@ -41,6 +41,10 @@
       <HintPath>..\packages\Moq.4.7.12\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Prism, Version=6.3.0.0, Culture=neutral, PublicKeyToken=40ee6c3a2184dc59, processorArchitecture=MSIL">
+      <HintPath>..\packages\Prism.Core.6.3.0\lib\net45\Prism.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -68,7 +72,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Util\NotifyPropertyChangedExtensions.cs" />
+    <Compile Include="ViewModel\FriendEditViewModelTests.cs" />
     <Compile Include="ViewModel\MainViewModelTests.cs" />
+    <Compile Include="ViewModel\NavigationItemViewModelTests.cs" />
     <Compile Include="ViewModel\NavigationViewModelTests.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +85,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\FriendStorage.DataAccess\FriendStorage.DataAccess.csproj">
+      <Project>{ED3B0A8C-BCE2-427B-8DA8-AC7F1388DD2E}</Project>
+      <Name>FriendStorage.DataAccess</Name>
+    </ProjectReference>
     <ProjectReference Include="..\FriendStorage.Model\FriendStorage.Model.csproj">
       <Project>{67eb7c6d-721a-4c84-991d-594bd263a0ed}</Project>
       <Name>FriendStorage.Model</Name>
