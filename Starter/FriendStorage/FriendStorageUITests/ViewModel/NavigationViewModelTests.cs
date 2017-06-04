@@ -14,6 +14,7 @@ namespace FriendStorageUITests.ViewModel {
     public class NavigationViewModelTests {
 
         private NavigationViewModel navigationViewModel;
+        private OnDeleteFriendEvent onDeleteFriendEvent;
 
         public NavigationViewModelTests() {
             Mock<INavigationDataProvider> navigationDataProviderMock = new Mock<INavigationDataProvider>();
@@ -25,6 +26,7 @@ namespace FriendStorageUITests.ViewModel {
             Mock<IEventAggregator> eventAggregatorMock = new Mock<IEventAggregator>();
             eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>())
                 .Returns(new OnDeleteFriendEvent());
+            onDeleteFriendEvent = eventAggregatorMock.Object.GetEvent<OnDeleteFriendEvent>();
 
             navigationViewModel = new NavigationViewModel(navigationDataProviderMock.Object, eventAggregatorMock.Object);
         }
@@ -50,6 +52,15 @@ namespace FriendStorageUITests.ViewModel {
             navigationViewModel.Load();
 
             Assert.Equal(2, navigationViewModel.Friends.Count);
+        }
+
+        [Fact]
+        public void ShouldRemoveFriendOnReceivingDeleteEvent() {
+            navigationViewModel.Load();
+            onDeleteFriendEvent.Publish(1);
+
+            Assert.Equal(1, navigationViewModel.Friends.Count);
+            Assert.Equal(2, navigationViewModel.Friends.First().Id);
         }
     }
 }

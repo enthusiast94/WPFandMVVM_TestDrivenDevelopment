@@ -27,7 +27,6 @@ namespace FriendStorage.UI.ViewModel {
                 }
             }
         }
-
         public ICommand DeleteCommand { get; private set; }
 
         public FriendEditViewModel(IFriendDataProvider friendDataProvider, IEventAggregator eventAggregator) {

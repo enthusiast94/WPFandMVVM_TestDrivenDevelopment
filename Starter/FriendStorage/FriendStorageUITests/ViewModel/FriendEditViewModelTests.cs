@@ -1,9 +1,11 @@
 ﻿using FriendStorage.Model;
 using FriendStorage.UI.DataProvider;
+using FriendStorage.UI.Events;
 using FriendStorage.UI.ViewModel;
 using FriendStorageUITests.Util;
 using Moq;
 using Prism.Events;
+using System.Windows.Input;
 using Xunit;
 
 namespace FriendStorageUITests.ViewModel {
@@ -12,12 +14,15 @@ namespace FriendStorageUITests.ViewModel {
         private Mock<IFriendDataProvider> friendDataProviderMock;
         private FriendEditViewModel viewModel;
         private Mock<IEventAggregator> eventAggregatorMock;
+        private OnDeleteFriendEvent onDeleteFriendEvent;
 
         public FriendEditViewModelTests() {
             friendDataProviderMock = new Mock<IFriendDataProvider>();
             friendDataProviderMock.Setup(provider => provider.GetFriendById(friendId))
                 .Returns(new Friend() {Id = friendId, FirstName = "Manas"});
             eventAggregatorMock = new Mock<IEventAggregator>();
+            eventAggregatorMock.Setup(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>())
+                .Returns(new OnDeleteFriendEvent());
 
             viewModel = new FriendEditViewModel(friendDataProviderMock.Object, eventAggregatorMock.Object);
         }
@@ -38,6 +43,14 @@ namespace FriendStorageUITests.ViewModel {
             });
 
             Assert.True(fired);
+        }
+
+        [Fact]
+        public void ShouldDeleteFriendAndFireDeleteEventWhenDeleteButtonClicked() {
+            viewModel.Load(friendId);
+            viewModel.DeleteCommand.Execute(null);
+            friendDataProviderMock.Verify(provider => provider.DeleteFriend(friendId), Times.Once);
+            eventAggregatorMock.Verify(aggregator => aggregator.GetEvent<OnDeleteFriendEvent>(), Times.Once);
         }
     }
 }

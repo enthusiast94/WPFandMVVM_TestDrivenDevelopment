@@ -94,7 +94,7 @@ namespace FriendStorageUITests.ViewModel {
         }
 
         [Fact]
-        public void ShouldDeleteFriendOnReceivingDeleteEvent() {
+        public void ShouldRemoveFriendOnReceivingDeleteEvent() {
             openFriendEditViewEvent.Publish(1);
             onDeleteFriendEvent.Publish(1);
             Assert.Equal(0, mainViewModel.FriendEditViewModels.Count);
