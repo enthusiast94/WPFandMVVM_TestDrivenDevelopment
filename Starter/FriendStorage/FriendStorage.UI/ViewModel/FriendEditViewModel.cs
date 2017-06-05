@@ -1,8 +1,8 @@
-﻿using System;
-using FriendStorage.Model;
+﻿using FriendStorage.Model;
 using FriendStorage.UI.DataProvider;
 using System.Windows.Input;
 using FriendStorage.UI.Command;
+using FriendStorage.UI.Dialogs;
 using Prism.Events;
 using FriendStorage.UI.Events;
 using FriendStorage.UI.Wrappers;
@@ -17,6 +17,7 @@ namespace FriendStorage.UI.ViewModel {
         private readonly IFriendDataProvider friendDataProvider;
         private FriendWrapper friend;
         private IEventAggregator eventAggregator;
+        private IMessageDialogService messageDialogService;
 
         public FriendWrapper Friend {
             get { return friend; }
@@ -27,24 +28,26 @@ namespace FriendStorage.UI.ViewModel {
                 }
             }
         }
+
         public ICommand DeleteCommand { get; private set; }
         public ICommand SaveCommand { get; private set; }
 
-        public FriendEditViewModel(IFriendDataProvider friendDataProvider, IEventAggregator eventAggregator) {
+        public FriendEditViewModel(IFriendDataProvider friendDataProvider, IEventAggregator eventAggregator,
+            IMessageDialogService messageDialogService) {
             this.friendDataProvider = friendDataProvider;
             this.eventAggregator = eventAggregator;
+            this.messageDialogService = messageDialogService;
 
             DeleteCommand = new DelegateCommand(OnDeleteButtonClicked, CanDelete);
             SaveCommand = new DelegateCommand(OnSaveButtonClicked, CanSave);
         }
 
         public void Load(int? friendId) {
-            Friend = friendId.HasValue 
-                ? new FriendWrapper(friendDataProvider.GetFriendById(friendId.Value)) 
+            Friend = friendId.HasValue
+                ? new FriendWrapper(friendDataProvider.GetFriendById(friendId.Value))
                 : new FriendWrapper(new Friend());
 
             Friend.PropertyChanged += Friend_PropertyChanged;
-
         }
 
         private void Friend_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e) {
@@ -52,8 +55,11 @@ namespace FriendStorage.UI.ViewModel {
         }
 
         private void OnDeleteButtonClicked(object obj) {
-            friendDataProvider.DeleteFriend(friend.Id);
-            eventAggregator.GetEvent<OnDeleteFriendEvent>().Publish(friend.Id);
+            if (messageDialogService.ShowYesNoMessageBox($"Are you sure you want to delete the friend '{friend.FirstName} {friend.LastName}'",
+                    "Delete friend") == MessageBoxResult.Yes) {
+                friendDataProvider.DeleteFriend(friend.Id);
+                eventAggregator.GetEvent<OnDeleteFriendEvent>().Publish(friend.Id);
+            }
         }
 
         private void OnSaveButtonClicked(object obj) {
