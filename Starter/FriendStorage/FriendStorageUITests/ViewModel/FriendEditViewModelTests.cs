@@ -14,7 +14,6 @@ namespace FriendStorageUITests.ViewModel {
         private Mock<IFriendDataProvider> friendDataProviderMock;
         private FriendEditViewModel viewModel;
         private Mock<IEventAggregator> eventAggregatorMock;
-        private OnDeleteFriendEvent onDeleteFriendEvent;
         private Mock<OnFriendSavedEvent> onFriendSavedEventMock;
 
         public FriendEditViewModelTests() {
