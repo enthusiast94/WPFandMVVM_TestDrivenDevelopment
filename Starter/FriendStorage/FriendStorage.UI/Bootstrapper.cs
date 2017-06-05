@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Autofac;
 using FriendStorage.DataAccess;
 using FriendStorage.UI.DataProvider;
+using FriendStorage.UI.Dialogs;
 using FriendStorage.UI.View;
 using FriendStorage.UI.ViewModel;
 using Prism.Events;
@@ -25,6 +26,7 @@ namespace FriendStorage.UI {
             builder.RegisterType<FileDataService>().As<IDataService>();
             builder.RegisterType<NavigationDataProvider>().As<INavigationDataProvider>();
             builder.RegisterType<FriendDataProvider>().As<IFriendDataProvider>();
+            builder.RegisterType<MessageDialogService>().As<IMessageDialogService>();
 
             return builder.Build();
         }
