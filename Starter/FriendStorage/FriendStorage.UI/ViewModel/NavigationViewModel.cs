@@ -13,7 +13,6 @@ namespace FriendStorage.UI.ViewModel {
     }
 
     public class NavigationViewModel : ViewModelBase, INavigationViewModel {
-
         public ObservableCollection<NavigationItemViewModel> Friends { get; set; }
         private INavigationDataProvider navigationDataProvider;
         private IEventAggregator eventAggregator;
@@ -28,8 +27,17 @@ namespace FriendStorage.UI.ViewModel {
         }
 
         private void OnSavedFriend(Friend savedFriend) {
-            Friends.SingleOrDefault(model => model.Id == savedFriend.Id).DisplayMember =
-                $"{savedFriend.FirstName} {savedFriend.LastName}";
+            NavigationItemViewModel navigationItemViewModel = Friends.SingleOrDefault(model => model.Id == savedFriend.Id);
+            if (navigationItemViewModel == null) {
+                Friends.Add(new NavigationItemViewModel(savedFriend.Id, GetDisplayMember(savedFriend),
+                    eventAggregator));
+            } else {
+                navigationItemViewModel.DisplayMember = GetDisplayMember(savedFriend);
+            }
+        }
+
+        private static string GetDisplayMember(Friend savedFriend) {
+            return $"{savedFriend.FirstName} {savedFriend.LastName}";
         }
 
         private void OnDeleteFriend(int friendId) {
@@ -40,7 +48,7 @@ namespace FriendStorage.UI.ViewModel {
             Friends.Clear();
 
             foreach (var friend in navigationDataProvider.GetAllFriends()) {
-                Friends.Add(new NavigationItemViewModel(friend.Id, friend.DisplayMember, eventAggregator));               
+                Friends.Add(new NavigationItemViewModel(friend.Id, friend.DisplayMember, eventAggregator));
             }
         }
     }

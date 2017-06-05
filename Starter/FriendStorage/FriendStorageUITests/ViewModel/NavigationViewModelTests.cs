@@ -8,6 +8,7 @@ using Moq;
 using Prism.Events;
 using Xunit;
 using FriendStorage.UI.Events;
+using FriendStorageUITests.Util;
 
 namespace FriendStorageUITests.ViewModel {
     public class NavigationViewModelTests {
@@ -72,6 +73,15 @@ namespace FriendStorageUITests.ViewModel {
             onFriendSavedEvent.Publish(new Friend() {Id = 1, FirstName = "ManasChanged", LastName = "Bajaj"});
 
             Assert.Equal("ManasChanged Bajaj", viewModel.Friends.SingleOrDefault(model => model.Id == 1).DisplayMember);
+        }
+
+        [Fact]
+        public void ShouldAddNavigationItemOnSavedEventIfItDoesNotAlreadyExist() {
+            viewModel.Load();
+            onFriendSavedEvent.Publish(new Friend() {Id = 3, FirstName = "New", LastName = "Friend"});
+
+            Assert.Equal(3, viewModel.Friends.Count);
+            Assert.Equal("New Friend", viewModel.Friends.SingleOrDefault(model => model.Id == 3).DisplayMember);
         }
     }
 }

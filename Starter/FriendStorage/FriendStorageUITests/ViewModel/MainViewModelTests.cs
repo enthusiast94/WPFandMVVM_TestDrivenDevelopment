@@ -101,12 +101,21 @@ namespace FriendStorageUITests.ViewModel {
             Assert.Equal(0, mainViewModel.FriendEditViewModels.Count);
         }
 
+        [Fact]
+        public void ShouldAddFriendEditViewModelAndLoadItWithIdNullAndSelectIt() {
+            mainViewModel.AddFriendCommand.Execute(null);
+
+            Assert.Equal(1, mainViewModel.FriendEditViewModels.Count);
+            Assert.Equal(mainViewModel.FriendEditViewModels.First(), mainViewModel.SelectedFriendEditViewModel);
+            friendEditViewModelMocks.First().Verify(model => model.Load(null), Times.Once);
+        }
+
         private IFriendEditViewModel CreateFriendEditViewModel() {
             Mock<IFriendEditViewModel> mock = new Mock<IFriendEditViewModel>();
             mock.Setup(model => model.Load(It.IsAny<int>()))
-                .Callback<int>(friendId => {
+                .Callback<int?>(friendId => {
                     mock.Setup(model => model.Friend)
-                        .Returns(new FriendWrapper(new Friend() { Id = friendId }));
+                        .Returns(new FriendWrapper(new Friend() { Id = friendId.Value }));
                 });
             friendEditViewModelMocks.Add(mock);
             return mock.Object;

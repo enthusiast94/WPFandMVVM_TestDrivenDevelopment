@@ -90,5 +90,43 @@ namespace FriendStorageUITests.ViewModel {
             friendDataProviderMock.Verify(provider => provider.SaveFriend(viewModel.Friend.Model), Times.Once);
             onFriendSavedEventMock.Verify(onSavedEvent => onSavedEvent.Publish(viewModel.Friend.Model), Times.Once);
         }
+
+        [Fact]
+        public void ShouldCreateNewFriendWhenNullIsPassedToLoadMethod() {
+            viewModel.Load(null);
+
+            Assert.NotNull(viewModel.Friend);
+            Assert.Equal(0, viewModel.Friend.Id);
+            Assert.Null(viewModel.Friend.FirstName);
+            Assert.Null(viewModel.Friend.LastName);
+            Assert.False(viewModel.Friend.IsDeveloper);
+            Assert.Null(viewModel.Friend.Birthday);
+
+            friendDataProviderMock.Verify(provider => provider.GetFriendById(It.IsAny<int>()), Times.Never);
+        }
+
+        [Fact]
+        public void ShouldDisableDeleteButtonWhenFriendDoesNotExist() {
+            viewModel.Load(null);
+
+            Assert.False(viewModel.DeleteCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void ShouldEnableDeleteButtonWhenFriendExists() {
+            viewModel.Load(friendId);
+
+            Assert.True(viewModel.DeleteCommand.CanExecute(null));
+        }
+
+        [Fact]
+        public void ShouldRaiseCanExecuteChangedOnDeleteCommandWhenFriendIsSaved() {
+            viewModel.Load(friendId);
+            bool fired = false;
+            viewModel.SaveCommand.CanExecuteChanged += (sender, args) => fired = true;
+            viewModel.SaveCommand.Execute(null);
+
+            Assert.True(fired);
+        }
     }
 }
